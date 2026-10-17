@@ -1,0 +1,21 @@
+import { Outlet } from "react-router-dom";
+import Header from "./Header";
+import TopNavbar from "./TopNavbar";
+import Footer from "../components/Footer";
+
+function AppLayout() {
+  return (
+    <div>
+      <div className="sticky top-0 z-60">
+        <TopNavbar />
+        <Header />
+      </div>
+      <main>
+        <Outlet />
+        <Footer />
+      </main>
+    </div>
+  );
+}
+
+export default AppLayout;

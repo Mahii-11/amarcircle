@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
+import useContactInfo from "../lib/useContactInfo";
 
 const Header = () => {
+  const contactInfo = useContactInfo();
   const [open, setOpen] = useState(false);
   const [showHeader, setShowHeader] = useState(true);
 
@@ -39,7 +41,8 @@ const Header = () => {
   }, [open]);
 
   const navItems = [
-    { to: "/media", label: "media" },
+    { to: "/", label: "Home" },
+    { to: "/media", label: "Media" },
     { to: "/aboutus", label: "About us" },
     { to: "/services", label: "Services" },
     { to: "/our-story", label: "Our Story" },
@@ -52,7 +55,7 @@ const Header = () => {
     <>
       {/* 🔥 HEADER */}
       <header
-        className={`fixed top-0 left-0 w-full z-40 bg-[#3200b3] shadow-lg transition-all duration-300 ${
+        className={`fixed top-0 left-0 w-full z-40 bg-[#3510B8] border-b border-white/10 shadow-lg shadow-purple-950/30 transition-all duration-300 ${
           showHeader ? "translate-y-0" : "-translate-y-full"
         }`}
       >
@@ -60,21 +63,22 @@ const Header = () => {
           {/* Logo */}
           <div className="text-white text-2xl font-semibold tracking-wide">
             <NavLink to="/" className="flex items-center gap-2">
-              <img src="images/logo-1.png" alt="logo" className="w-auto h-20 sm:h-24" />
+              <img src={contactInfo?.logo || "/images/logo-1.png"} alt="logo" className="w-auto h-20 sm:h-24" />
             </NavLink>
           </div>
 
           {/* Desktop Nav */}
           <nav className="hidden md:block">
-            <ul className="flex items-center gap-8 text-white text-lg font-['Playfair_Display'] tracking-wide">
+            <ul className="flex items-center gap-3 lg:gap-6 text-white text-base lg:text-lg font-['Playfair_Display'] tracking-wide">
               {navItems.map(({ to, label }) => (
                 <li key={to}>
                   <NavLink
                     to={to}
+                    end={to === "/"}
                     className={({ isActive }) =>
                       isActive
-                        ? "bg-blue-800 px-4 py-2 rounded-md font-semibold shadow"
-                        : "hover:text-gray-300 transition"
+                        ? "bg-white/15 px-3 py-2 rounded-lg font-semibold shadow-inner"
+                        : "px-3 py-2 rounded-lg text-white/90 hover:text-white hover:bg-white/10 transition"
                     }
                   >
                     {label}
@@ -104,7 +108,7 @@ const Header = () => {
 
       {/* 🔥 SLIDE MENU */}
       <div
-        className={`fixed top-0 left-0 h-full w-64 bg-[#3200b3] text-white z-50 transform ${
+        className={`fixed top-0 left-0 h-full w-64 bg-[#3510B8] text-white z-50 transform ${
           open ? "translate-x-0" : "-translate-x-full"
         } transition-transform duration-300 shadow-xl`}
       >
@@ -122,6 +126,7 @@ const Header = () => {
             <li key={to}>
               <NavLink
                 to={to}
+                end={to === "/"}
                 onClick={() => setOpen(false)}
                 className={({ isActive }) =>
                   isActive

@@ -9,6 +9,7 @@ import AppLayout from "./components/AppLayout";
 import OurStory from "./pages/OurStory";
 import PackageSlider from "./pages/PackageSlider";
 import EntertainmentLandingPage from "./pages/EntertainmentLandingPage";
+import DynamicPage from "./pages/DynamicPage";
 
 const router = createBrowserRouter([
   {
@@ -57,6 +58,11 @@ const router = createBrowserRouter([
       {
         path: "/media",
         element: <EntertainmentLandingPage />
+      },
+
+      {
+        path: "/page/:slug",
+        element: <DynamicPage />
       }
     ],
   },

@@ -8,21 +8,9 @@ import {
   FiGlobe,
   FiWifi,
   FiCheck,
-  FiCopy,
 } from "react-icons/fi";
-import { BsQrCode } from "react-icons/bs";
-
-// Payment number shown on the selected method (replace with the real one)
-const PAY_NUMBER = "017xxxxxxxx";
-
-const METHODS = [
-  { id: "bkash", name: "bKash", logo: "/payments/bkash.png", hasNumber: true },
-  { id: "nagad", name: "Nagad", logo: "/payments/nagad.png", hasNumber: true },
-  { id: "rocket", name: "Rocket", logo: "/payments/rocket.png", hasNumber: true },
-  { id: "mastercard", name: "Mastercard", logo: "/payments/mastercard.png" },
-  { id: "sslcommerz", name: "SSLCommerz", logo: "/payments/sslcommerz-logo.jpg" },
-  { id: "nexuspay", name: "NexusPay", logo: null },
-];
+import PaymentMethodSelector from "../components/PaymentMethodSelector";
+import { ALL_METHODS } from "../data/paymentMethods";
 
 const STEPS = ["Enter ID", "Choose Payment", "Complete"];
 
@@ -34,23 +22,11 @@ const SIDE_POINTS = [
 
 export default function PayBill() {
   const [customerId, setCustomerId] = useState("");
-  const [method, setMethod] = useState("bkash");
+  const [method, setMethod] = useState("sslcommerz");
   const [step, setStep] = useState(1);
   const [error, setError] = useState("");
-  const [copied, setCopied] = useState(false);
 
-  const selected = METHODS.find((m) => m.id === method);
-
-  const copyNumber = async (e) => {
-    e.stopPropagation();
-    try {
-      await navigator.clipboard.writeText(PAY_NUMBER);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
-    } catch {
-      /* clipboard unavailable */
-    }
-  };
+  const selected = ALL_METHODS.find((m) => m.id === method);
 
   const handleProceed = () => {
     if (step === 3) {
@@ -155,69 +131,11 @@ export default function PayBill() {
             <p className="mt-8 text-sm font-semibold text-[#1f0a66]">
               Select Payment Method
             </p>
-            <div className="mt-3 grid grid-cols-3 gap-3 pt-24 sm:grid-cols-6 sm:gap-2 sm:pt-24">
-              {METHODS.map((m) => {
-                const active = m.id === method;
-                return (
-                  <div key={m.id} className="relative flex flex-col items-center">
-                    {/* Scan / copy tooltip on selected wallet */}
-                    {active && m.hasNumber && (
-                      <div className="absolute -top-14 left-0 z-10 w-36 rounded-lg bg-[#3200b3] p-2 text-white shadow-lg sm:-top-[4.6rem] sm:w-40">
-                        <div className="flex items-start gap-2">
-                          <BsQrCode className="mt-0.5 h-5 w-5 shrink-0" />
-                          <div className="min-w-0 text-left text-[9px] leading-tight">
-                            Scan to Pay or Call:
-                            <div className="truncate text-[11px] font-semibold">
-                              {PAY_NUMBER}
-                            </div>
-                          </div>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={copyNumber}
-                          className="mt-1.5 flex w-full items-center justify-center gap-1 rounded bg-white py-0.5 text-[9px] font-bold uppercase tracking-wide text-[#3200b3]"
-                        >
-                          {copied ? <FiCheck /> : <FiCopy />}
-                          {copied ? "Copied" : "Copy Number"}
-                        </button>
-                        <span className="absolute -bottom-1 left-6 h-2 w-2 rotate-45 bg-[#3200b3]" />
-                      </div>
-                    )}
-
-                    <button
-                      type="button"
-                      disabled={step === 3}
-                      onClick={() => setMethod(m.id)}
-                      aria-pressed={active}
-                      className={`flex h-20 w-full items-center justify-center rounded-xl border bg-white p-2 transition ${
-                        active
-                          ? "border-[#3200b3] shadow-md shadow-[#3200b3]/20 ring-2 ring-[#3200b3]/20"
-                          : "border-gray-200 hover:border-[#3200b3]/40"
-                      }`}
-                    >
-                      {m.logo ? (
-                        <img
-                          src={m.logo}
-                          alt={m.name}
-                          className="max-h-12 w-full object-contain"
-                        />
-                      ) : (
-                        <span className="text-[11px] font-bold text-[#3200b3]">
-                          Nexus<span className="text-sky-500">Pay</span>
-                        </span>
-                      )}
-                    </button>
-                    <span
-                      className={`mt-1.5 text-[11px] ${
-                        active ? "font-semibold text-[#3200b3]" : "text-gray-500"
-                      }`}
-                    >
-                      {m.name}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
+            <PaymentMethodSelector
+              method={method}
+              onChange={setMethod}
+              disabled={step === 3}
+            />
 
             {/* Step message */}
             {step === 2 && (

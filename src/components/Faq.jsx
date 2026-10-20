@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { getFaqData } from "../services/api";
+import FaqSkeleton from "../loader/FaqSkeleton";
 
 export default function Faq() {
   const [activeIndex, setActiveIndex] = useState(null);
@@ -28,7 +29,7 @@ export default function Faq() {
     setActiveIndex(activeIndex === index ? null : index);
   };
 
-  if (loading) return;
+  if (loading) return <FaqSkeleton />;
 
   return (
     <section className="w-full py-12 md:py-20 px-4 bg-gray-50 flex justify-center">
@@ -62,7 +63,7 @@ export default function Faq() {
                   className="w-full flex justify-between items-center text-left px-4 py-4 sm:px-5 sm:py-5"
                 >
                   <span className="text-sm sm:text-base md:text-lg font-semibold text-gray-900 pr-4">
-                    {faq.question}
+                    {faq.q}
                   </span>
 
                   <div className="flex-shrink-0">
@@ -82,7 +83,7 @@ export default function Faq() {
                 >
                   <div className="overflow-hidden">
                     <p className="px-4 pb-4 sm:px-5 sm:pb-5 text-xs sm:text-sm md:text-base text-gray-600 leading-relaxed">
-                      {faq.answer}
+                      {faq.a}
                     </p>
                   </div>
                 </div>

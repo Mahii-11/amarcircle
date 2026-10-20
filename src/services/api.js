@@ -1,4 +1,4 @@
-const BASE_URL = "https://backend.amarcircle.net/api";
+const BASE_URL = "https://apicircle.bdtechdemo.online/api";
 
 // 🔹 Normalize data (main magic)
 const normalizeData = (res) => {
@@ -45,9 +45,20 @@ export const fetchData = async (endpoint, options = {}) => {
 
 
 
-export const getPackageData = () => fetchData("/packages-data");
+export const getPackageData = () => fetchData("/package-data");
 export const getCommunityData = () => fetchData("/community-data");
-export const getFaqData = () => fetchData("/faq-data");
+export const getFaqData = () => fetchData("/faq-list");
+export const getHeroData = () => fetchData("/home-hero-section-data");
+export const getAboutUsData = () => fetchData("/about-us-data");
+export const getWhyChooseData = () => fetchData("/why-choose-data");
+export const getServiceData = () => fetchData("/service-data");
+export const getOurStoryData = () => fetchData("/our-story-data");
+export const getOurPurposeData = () => fetchData("/our-purpose-data");
+export const getJoinCommunityData = () => fetchData("/join-community-data");
+// public endpoint (contact-infos/index is the admin list and needs a login token)
+export const getContactInfoData = () => fetchData("/contact-info-data");
+export const getPageList = () => fetchData("/page-list");
+export const getPageData = (slug) => fetchData(`/page-data/${encodeURIComponent(slug)}`);
 
 
 

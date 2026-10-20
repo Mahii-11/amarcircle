@@ -1,1 +1,25 @@
 @import "tailwindcss";
+
+/* Shimmer used by skeleton loaders */
+@keyframes sk-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+.sk-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.sk-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+  animation: sk-shimmer 1.6s infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sk-shimmer::after {
+    animation: none;
+  }
+}

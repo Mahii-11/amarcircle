@@ -1,9 +1,50 @@
-import { FaGlobe, FaTv, FaServer } from "react-icons/fa";
+import { FaGlobe, FaTv, FaServer, FaDesktop, FaWifi } from "react-icons/fa";
 import { Globe, Smile, Headphones, Users } from "lucide-react";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { getCommunityData } from "../services/api";
+import { getCommunityData, getJoinCommunityData, getServiceData } from "../services/api";
 import CommunitySkeleton from "../loader/CommunitySkeleton";
+import ServiceSkeleton from "../loader/ServiceSkeleton";
+
+const defaultSection = {
+  title: "SERVICE",
+  description:
+    "An ISP (Internet Service Provider) provides customers with internet access by offering various types of service packages, such as residential, business, and mobile internet plans. These packages typically include.",
+};
+
+const defaultItems = [
+  {
+    id: 1,
+    title: "Broadband Internet",
+    description:
+      "Broadband internet refers to high-speed internet access that is always on and faster than traditional dial-up connections.",
+    icon: "fa-solid fa-tv",
+  },
+  {
+    id: 2,
+    title: "Domain & Hosting",
+    description:
+      "When a website is hosted, it is assigned a unique IP address, which corresponds to the server.",
+    icon: "fa-solid fa-server",
+  },
+];
+
+// API sends FontAwesome class names, map them to react-icons
+const serviceIconMap = {
+  "fa-desktop": FaDesktop,
+  "fa-tv": FaTv,
+  "fa-server": FaServer,
+  "fa-globe": FaGlobe,
+  "fa-wifi": FaWifi,
+};
+
+const normalizeServiceIcon = (iconName) => {
+  if (!iconName) return FaGlobe;
+
+  const key = iconName.split(" ").find((c) => serviceIconMap[c]);
+
+  return serviceIconMap[key] || FaGlobe;
+};
 
 function Services() {
   return (
@@ -15,6 +56,28 @@ function Services() {
 }
 
 function ServicesPage() {
+  const [section, setSection] = useState(defaultSection);
+  const [items, setItems] = useState(defaultItems);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchService = async () => {
+      try {
+        setLoading(true);
+        const response = await getServiceData();
+        if (response?.section) setSection(response.section);
+        if (response?.items?.length) setItems(response.items);
+      } catch (error) {
+        console.error("Error fetching service data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchService();
+  }, []);
+
+  if (loading) return <ServiceSkeleton />;
+
   return (
     <div className="w-full bg-white text-gray-800 px-6 md:px-16 py-16">
       {/* Header */}
@@ -27,14 +90,13 @@ function ServicesPage() {
           />
         </div>
 
-        <h1 className="text-4xl font-bold text-blue-800">SERVICE</h1>
+        <h1 className="text-4xl font-bold text-blue-800">
+          {section.title}
+        </h1>
         <div className="w-20 h-1 bg-blue-600 mx-auto mt-2 mb-6"></div>
 
         <p className="text-gray-600 text-lg leading-relaxed">
-          An ISP (Internet Service Provider) provides customers with internet
-          access by offering various types of service packages, such as
-          residential, business, and mobile internet plans. These packages
-          typically include.
+          {section.description}
         </p>
       </div>
 
@@ -50,29 +112,23 @@ function ServicesPage() {
           </p>
         </div>  */}
 
-        {/* Broadband Internet */}
-        <div className="bg-white shadow-md rounded-2xl p-8 hover:shadow-xl hover:scale-[1.02] transition duration-300">
-          <FaTv className="text-blue-700 text-6xl mb-4" />
-          <h2 className="text-2xl font-bold text-blue-900 mb-3">
-            Broadband Internet
-          </h2>
-          <p className="text-gray-600 leading-relaxed">
-            Broadband internet refers to high-speed internet access that is
-            always on and faster than traditional dial-up connections.
-          </p>
-        </div>
-
-        {/* Domain & Hosting */}
-        <div className="bg-white shadow-md rounded-2xl p-8 hover:shadow-xl hover:scale-[1.02] transition duration-300">
-          <FaServer className="text-blue-700 text-6xl mb-4" />
-          <h2 className="text-2xl font-bold text-blue-900 mb-3">
-            Domain & Hosting
-          </h2>
-          <p className="text-gray-600 leading-relaxed">
-            When a website is hosted, it is assigned a unique IP address, which
-            corresponds to the server.
-          </p>
-        </div>
+        {items.map((item) => {
+          const Icon = normalizeServiceIcon(item.icon);
+          return (
+            <div
+              key={item.id}
+              className="bg-white shadow-md rounded-2xl p-8 hover:shadow-xl hover:scale-[1.02] transition duration-300"
+            >
+              <Icon className="text-blue-700 text-6xl mb-4" />
+              <h2 className="text-2xl font-bold text-blue-900 mb-3">
+                {item.title}
+              </h2>
+              <p className="text-gray-600 leading-relaxed">
+                {item.description}
+              </p>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -95,19 +151,25 @@ function CommunitySection() {
   return iconMap[key] || Users; // fallback icon
 };
   const [data, setData] = useState([]);
+  const [intro, setIntro] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
       const fetchData = async () => {
-        try {
-          setLoading(true);
-          const response = await getCommunityData();
-          setData(response);
-        } catch (error) {
-          console.error("Error fetching community data:", error);
-        } finally {
-          setLoading(false);
-        }
+        setLoading(true);
+        // independent requests: one failing must not blank the other
+        const [statsRes, introRes] = await Promise.allSettled([
+          getCommunityData(),
+          getJoinCommunityData(),
+        ]);
+
+        if (statsRes.status === "fulfilled") setData(statsRes.value);
+        else console.error("Error fetching community data:", statsRes.reason);
+
+        if (introRes.status === "fulfilled") setIntro(introRes.value);
+        else console.error("Error fetching join community data:", introRes.reason);
+
+        setLoading(false);
       };
       fetchData();
   }, [])
@@ -128,20 +190,19 @@ function CommunitySection() {
           transition={{ duration: 0.6 }}
           className="space-y-6"
         >
-          <h2 className="text-4xl md:text-5xl font-bold text-[#0d1b39]">
-            Join our community
-          </h2>
+          {intro?.title && (
+            <h2 className="text-4xl md:text-5xl font-bold text-[#0d1b39]">
+              {intro.title}
+            </h2>
+          )}
 
-          <p className="text-lg text-gray-700">
-            We have considered our business solutions to support you on every
-            stage of your growth.
-          </p>
+          {intro?.subtitle && (
+            <p className="text-lg text-gray-700">{intro.subtitle}</p>
+          )}
 
-          <p className="text-gray-600">
-            Integer posuere erat a ante venenatis dapibus posuere velit aliquet.
-            Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
-            Praesent commodo cursus magna, vel scelerisque nisl consectetur.
-          </p>
+          {intro?.description && (
+            <p className="text-gray-600">{intro.description}</p>
+          )}
         </motion.div>
 
         {/* Right — Cards Grid */}

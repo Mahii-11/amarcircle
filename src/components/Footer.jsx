@@ -1,8 +1,20 @@
 import { motion } from "framer-motion";
 import { FaFacebookF, FaWhatsapp } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import useContactInfo from "../lib/useContactInfo";
+import { getPageList } from "../services/api";
 
 export default function XploreFooter() {
+  const contactInfo = useContactInfo();
+  const [pages, setPages] = useState([]);
+
+  useEffect(() => {
+    getPageList()
+      .then((list) => setPages(Array.isArray(list) ? list : []))
+      .catch((error) => console.error("Error fetching page list:", error));
+  }, []);
+
   return (
     <footer className="bg-[#052545] text-white py-12 px-6 md:px-16">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12">
@@ -15,19 +27,18 @@ export default function XploreFooter() {
         >
           <div className="flex items-center space-x-2">
             <img
-              src="/images/logo.png"
-              alt="Xplore Net"
+              src={contactInfo?.logo || "/images/logo.png"}
+              alt="Amarcircle"
               className="w-10 h-10 object-contain"
             />
             <h2 className="text-3xl font-bold">Amarcircle</h2>
           </div>
 
-          <p className="text-gray-300 leading-relaxed">
-            An ISP (Internet Service Provider) is a company that provides
-            internet access to customers. The business model of an ISP typically
-            involves offering various internet packages to customers, such as
-            broadband.
-          </p>
+          {contactInfo?.short_description && (
+            <p className="text-gray-300 leading-relaxed">
+              {contactInfo.short_description}
+            </p>
+          )}
         </motion.div>
 
         {/* Quick Links */}
@@ -113,7 +124,22 @@ export default function XploreFooter() {
         </motion.div>
       </div>
 
-      {/* Payment Gateway Logos 
+      {/* Dynamic pages (Terms and Conditions, ...) */}
+      {pages.length > 0 && (
+        <div className="max-w-7xl mx-auto mt-10 pt-6 border-t border-white/10 flex flex-wrap justify-center md:justify-start gap-x-6 gap-y-2 text-sm text-gray-300">
+          {pages.map((page) => (
+            <Link
+              key={page.slug}
+              to={`/page/${page.slug}`}
+              className="hover:text-white transition"
+            >
+              {page.title}
+            </Link>
+          ))}
+        </div>
+      )}
+
+      {/* Payment Gateway Logos
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

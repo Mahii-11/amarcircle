@@ -69,7 +69,7 @@ function HomePage() {
   data-testid="button-scroll-top"
   size="icon"
   className="
-    fixed bottom-6 right-6 z-50
+    fixed bottom-28 right-6 z-50
     h-12 w-12 rounded-full
     bg-white/10 backdrop-blur-md
     border border-white/20
